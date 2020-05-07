@@ -55,6 +55,28 @@ Currently opened url (useful for SSR).
 
 Replaces routing behaviour on `nav` and `redirect`. Useful with SSR where redirect can be sent to browser when apps tries to open different url.
 
+#### router
+
+##### nav(url)
+
+Opens `url`, which triggers `onChange` or `notFoundHandler`.
+
+##### redirect(url)
+
+Same as `nav(url)`, except previous `url` in history is replaced with the one provided.
+
+##### refresh()
+
+Triggers `onChange` or `notFoundHandler`.
+
+##### pathFor(page, params)
+
+Generates url based on route `name` (`page`) and path `params`.
+
+##### destroy()
+
+Destroys router. Useful in tests to remove listeners from DOM.
+
 ### Redux integration (optional)
 
 This library provides functions that can be used to store/retrieve current page from Redux store.
@@ -62,6 +84,7 @@ This library provides functions that can be used to store/retrieve current page 
 ```js
 /**
  * Redux action storing page name with params into store.
+ * `name` should be taken from route name.
  */
 changePage(name, params);
 
