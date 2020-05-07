@@ -9,7 +9,6 @@ const router = create({
 	routes,
 	app,
 	notFoundHandler,
-	rootUrl,
 	currentUrl,
 	navHandler,
 });
@@ -45,10 +44,6 @@ const routes = {
     }
 };
 ```
-
-#### rootUrl
-
-Base url.
 
 #### currentUrl
 

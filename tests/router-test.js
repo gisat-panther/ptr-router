@@ -1,11 +1,15 @@
 import {assert} from 'chai';
 import * as router from '../src/router';
 
+function jsdom(html, options) {
+	return require('jsdom-global')(html, options);
+}
+
 describe('router', function () {
 	describe('create', function () {
 		describe('pathFor', function () {
 			const r = router.create({
-				routes: {'': 'homepage', '/hello/:name': 'hello'},
+				routes: {'/': 'homepage', '/hello/:name': 'hello'},
 				app: function (request) {},
 			});
 
@@ -14,7 +18,7 @@ describe('router', function () {
 			});
 
 			it('homepage', function () {
-				assert.strictEqual(r.pathFor('homepage'), '');
+				assert.strictEqual(r.pathFor('homepage'), '/');
 			});
 
 			it('hello', function () {
@@ -22,6 +26,12 @@ describe('router', function () {
 					r.pathFor('hello', {name: 'John'}),
 					'/hello/John'
 				);
+			});
+
+			it('not-found', function () {
+				assert.throws(() => {
+					r.pathFor('/not-found');
+				});
 			});
 		});
 
@@ -65,12 +75,18 @@ describe('router', function () {
 						},
 					},
 				},
-				// todo: fix notfound handler (https://github.com/krasimir/navigo/issues/229)
-				// {
-				// 	name: 'not found',
-				// 	currentUrl: '/not-found',
-				// 	expectedRequest: {},
-				// },
+				{
+					name: 'not found',
+					currentUrl: '/not-found',
+					expectedRequest: {},
+				},
+				{
+					name: 'not found with query string',
+					currentUrl: '/not-found?a=b&c=d',
+					expectedRequest: {
+						queryString: 'a=b&c=d',
+					},
+				},
 			];
 
 			let r;
@@ -113,9 +129,56 @@ describe('router', function () {
 			});
 		});
 
+		describe('refresh', function () {
+			let r;
+
+			afterEach(function () {
+				if (r) {
+					r.destroy();
+				}
+			});
+
+			it('refresh', function (done) {
+				let requests = [];
+				r = router.create({
+					routes: {
+						'': 'homepage',
+						'/hello/:name': 'hello',
+					},
+					currentUrl: '',
+					app: function (request) {
+						requests.push(request);
+						if (requests.length !== 2) {
+							return;
+						}
+
+						assert.deepStrictEqual(requests, [
+							{
+								match: {
+									data: {name: 'homepage'},
+									pathParams: {},
+								},
+							},
+							{
+								match: {
+									data: {name: 'homepage'},
+									pathParams: {},
+								},
+							},
+						]);
+						done();
+					},
+				});
+
+				r.refresh();
+			});
+		});
+
 		describe('nav', function () {
 			beforeEach(function () {
-				this.jsdomCleanup = require('jsdom-global')();
+				this.jsdomCleanup = jsdom('', {
+					url: 'http://example.com',
+				});
 			});
 
 			let r;
@@ -166,7 +229,9 @@ describe('router', function () {
 
 		describe('redirect', function () {
 			beforeEach(function () {
-				this.jsdomCleanup = require('jsdom-global')();
+				this.jsdomCleanup = jsdom('', {
+					url: 'http://example.com',
+				});
 			});
 
 			let r;
@@ -228,6 +293,36 @@ describe('router', function () {
 				r.nav('/hello/John');
 				r.redirect('/hello/Doe');
 				history.back();
+			});
+		});
+
+		describe('navHanlder', function () {
+			let r;
+
+			afterEach(function () {
+				if (r) {
+					r.destroy();
+				}
+			});
+
+			it('navHandler', function () {
+				const urls = [];
+				r = router.create({
+					routes: {
+						'': 'homepage',
+						'/hello/:name': 'hello',
+					},
+					currentUrl: '',
+					navHandler(url) {
+						urls.push(url);
+					},
+					app: function (request) {},
+				});
+
+				r.nav('/hello/John');
+				r.redirect('/hello/Doe');
+
+				assert.deepStrictEqual(urls, ['/hello/John', '/hello/Doe']);
 			});
 		});
 	});
