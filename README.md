@@ -1,3 +1,5 @@
+![.github/workflows/test.yml](https://github.com/gisat-panther/ptr-router/workflows/.github/workflows/test.yml/badge.svg?branch=master)
+
 # ptr-router
 
 ## Api
