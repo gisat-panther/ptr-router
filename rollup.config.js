@@ -28,6 +28,7 @@ export default {
 		exports: 'named' /** Disable warning for default imports */,
 		sourcemap: true,
 	},
+	external: ['universal-router', 'universal-router/generateUrls'],
 	plugins: [
 		babel({
 			plugins: [],
