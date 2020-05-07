@@ -10,7 +10,7 @@ describe('router', function () {
 		describe('pathFor', function () {
 			const r = router.create({
 				routes: {'/': 'homepage', '/hello/:name': 'hello'},
-				app: function (request) {},
+				onChange: function (request) {},
 			});
 
 			after(function () {
@@ -108,7 +108,7 @@ describe('router', function () {
 							},
 						},
 						currentUrl: test.currentUrl,
-						app: function (request) {
+						onChange: function (request) {
 							assert.deepStrictEqual(
 								request,
 								test.expectedRequest
@@ -146,7 +146,7 @@ describe('router', function () {
 						'/hello/:name': 'hello',
 					},
 					currentUrl: '',
-					app: function (request) {
+					onChange: function (request) {
 						requests.push(request);
 						if (requests.length !== 2) {
 							return;
@@ -199,7 +199,7 @@ describe('router', function () {
 						'/hello/:name': 'hello',
 					},
 					currentUrl: '',
-					app: function (request) {
+					onChange: function (request) {
 						requests.push(request);
 						if (requests.length !== 2) {
 							return;
@@ -252,7 +252,7 @@ describe('router', function () {
 						'/hello/:name': 'hello',
 					},
 					currentUrl: '',
-					app: function (request) {
+					onChange: function (request) {
 						requests.push(request);
 						if (requests.length !== 4) {
 							return;
@@ -296,7 +296,7 @@ describe('router', function () {
 			});
 		});
 
-		describe('navHanlder', function () {
+		describe('navHandler', function () {
 			let r;
 
 			afterEach(function () {
@@ -316,13 +316,38 @@ describe('router', function () {
 					navHandler(url) {
 						urls.push(url);
 					},
-					app: function (request) {},
+					onChange: function (request) {},
 				});
 
 				r.nav('/hello/John');
 				r.redirect('/hello/Doe');
 
 				assert.deepStrictEqual(urls, ['/hello/John', '/hello/Doe']);
+			});
+		});
+
+		describe('default onChange', function () {
+			let r;
+
+			afterEach(function () {
+				if (r) {
+					r.destroy();
+				}
+			});
+
+			it('should call handler', function (done) {
+				r = router.create({
+					routes: {
+						'': 'homepage',
+						'/hello/:name': {
+							name: 'hello',
+							handler: (request) => {
+								done();
+							},
+						},
+					},
+					currentUrl: '/hello/John',
+				});
 			});
 		});
 	});

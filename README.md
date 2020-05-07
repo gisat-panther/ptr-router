@@ -7,14 +7,14 @@
 ```js
 const router = create({
 	routes,
-	app,
+	onChange,
 	notFoundHandler,
 	currentUrl,
 	navHandler,
 });
 ```
 
-#### app
+#### onChange
 
 Function called when url is changed with signature> `request => void`.
 
@@ -24,13 +24,15 @@ Function called when url is changed with signature> `request => void`.
 - `queryString`
     - query part of the url
 
+There is default `onChange` function that calls `handler(request)` where `handler` is taken from route data.
+
 #### notFoundHandler
 
 Function called when url is changed but there is no matching url. It is same as `app` except it doesn't contain `match` as nothing was matched.
 
 #### routes
 
-Mapping of url to route data received in `app` in `request.match.data`. Key is string with possible placeholders starting with `:`, value is either string or object containing `name` of type string with arbitrary additional data.
+Mapping of url to route data received in `onChange` in `request.match.data`. Key is string with possible placeholders starting with `:`, value is either string or object containing `name` of type string with arbitrary additional data.
 
 Example:
 ```js
@@ -89,13 +91,6 @@ const routes = {
         }
     }
 };
-
-function app(request) {
-    const handler = request.match.data.handler; // retrieve handler from route data
-    if (handler != null) {
-        handler(request); // call url handler if any
-    }
-}
 
 const router = ptrRouter.create({routes});
 const helloUrl = router.pathFor('hello', {name: 'John'}; // => /hello/John

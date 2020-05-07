@@ -77,10 +77,17 @@ function parseUrl(url) {
 	return {pathname: u.pathname, queryString: u.searchParams.toString()};
 }
 
+function defaultOnChange(request) {
+	const handler = request.match.data.handler;
+	if (handler != null) {
+		handler(request);
+	}
+}
+
 /**
  * @param {Object} options
  * @param {Object} options.routes Keys are paths in format `/path/:param`, values are route data (object with key 'name' or string)
- * @param {Function} options.app Function accepting request called when route is matched
+ * @param {Function=} options.onChange Function accepting request called when route is matched
  * @param {Function=} options.notFoundHandler Function accepting request called when no route is matched
  * @param {Function=} options.navHandler Function called instead of `nav` and `redirect` (useful for SSR)
  * @param {string=} options.currentUrl Useful when doing SSR
@@ -90,13 +97,19 @@ function parseUrl(url) {
  *   - matched route. It is object with keys `data` (route data object), `pathParams`
  * - `queryString`
  */
-export function create({routes, app, notFoundHandler, currentUrl, navHandler}) {
+export function create({
+	routes,
+	onChange = defaultOnChange,
+	notFoundHandler,
+	currentUrl,
+	navHandler,
+}) {
 	const universalRoutes = fromObjectRoutes(routes);
 	const options = {
 		resolveRoute(context, params) {
 			if (typeof context.route.action === 'function') {
 				const request = context.route.action(context, params);
-				app(request);
+				onChange(request);
 
 				return true;
 			}
