@@ -14,7 +14,7 @@ function createHandler(app, data) {
 			};
 		}
 
-		if (query != null) {
+		if (query != null && query !== '') {
 			request.queryString = query;
 		}
 
@@ -66,35 +66,38 @@ export function create({
 	}
 	navigo.resolve(currentUrl);
 
-	return navHandler
-		? {
-				nav: (url) => {
-					navHandler(url);
-				},
-				redirect: (url) => {
-					navHandler(url);
-				},
-				refresh: () => {
-					navigo.resolve();
-				},
-				pathFor: (page, params) => {
-					return navigo.generate(page, params);
-				},
-		  }
-		: {
-				nav: (url) => {
-					navigo.navigate(url);
-				},
-				redirect: (url) => {
-					navigo.historyAPIUpdateMethod('replaceState');
-					navigo.navigate(url);
-					navigo.historyAPIUpdateMethod('pushState');
-				},
-				refresh: () => {
-					navigo.resolve();
-				},
-				pathFor: (page, params) => {
-					return navigo.generate(page, params);
-				},
-		  };
+	const router = {
+		nav: (url) => {
+			navigo.navigate(url);
+		},
+		redirect: (url) => {
+			navigo.historyAPIUpdateMethod('replaceState');
+			navigo.navigate(url);
+			navigo.historyAPIUpdateMethod('pushState');
+		},
+		refresh: () => {
+			navigo.resolve();
+		},
+		pathFor: (page, params) => {
+			return navigo.generate(page, params);
+		},
+		destroy: () => {
+			navigo.destroy();
+		},
+	};
+
+	return Object.assign(
+		{},
+		router,
+		navHandler
+			? {
+					nav: (url) => {
+						navHandler(url);
+					},
+					redirect: (url) => {
+						navHandler(url);
+					},
+			  }
+			: {}
+	);
 }

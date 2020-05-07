@@ -27,12 +27,26 @@
 		"@babel/core": "^7.9.6",
 		"@babel/preset-env": "^7.9.6",
 		"@rollup/plugin-commonjs": "^11.0.2",
+		"@rollup/plugin-multi-entry": "^3.0.0",
+		"chai": "^4.2.0",
 		"cross-env": "^7.0.2",
+		"jsdom": "^16.2.2",
+		"jsdom-global": "^3.0.2",
+		"mocha": "^7.1.2",
 		"npm-run-all": "^4.1.5",
+		"npm-watch": "^0.6.0",
 		"rimraf": "^3.0.2",
 		"rollup": "^2.8.0",
 		"rollup-plugin-babel": "^4.4.0",
 		"rollup-plugin-filesize": "^6.2.1"
+	},
+	"watch": {
+		"test": {
+			"patterns": [
+				"src",
+				"tests"
+			]
+		}
 	},
 	"scripts": {
 		"clean": "rimraf dist",
@@ -44,6 +58,8 @@
 		"build:es": "cross-env NODE_ENV=es rollup -c",
 		"build:cjs": "cross-env NODE_ENV=cjs rollup -c",
 		"build:lib:es": "npm-run-all build:babel:lib:es",
-		"build:babel:lib:es": "cross-env BABEL_ENV=es babel src -d lib"
+		"build:babel:lib:es": "cross-env BABEL_ENV=es babel src -d lib",
+		"test": "cross-env NODE_ENV=cjs rollup -c ./rollup.test.config.js && mocha -- --require source-map-support/register",
+		"test:watch": "npm-watch test"
 	}
 }
