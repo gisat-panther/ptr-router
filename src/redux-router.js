@@ -1,4 +1,4 @@
-const CHANGE_PAGE = 'REDUX_ROUTER.CHANGE_PAGE';
+export const CHANGE_PAGE = 'REDUX_ROUTER.CHANGE_PAGE';
 
 export function changePage(name, params) {
 	const action = {type: CHANGE_PAGE};

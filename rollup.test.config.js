@@ -1,9 +1,8 @@
 import babel from 'rollup-plugin-babel';
 import commonjs from '@rollup/plugin-commonjs';
-import filesize from 'rollup-plugin-filesize';
+import multi from '@rollup/plugin-multi-entry';
 
 const env = process.env.NODE_ENV;
-const pkg = require('./package.json');
 
 const CWD = process.cwd();
 const Paths = {
@@ -17,25 +16,22 @@ Object.assign(Paths, {
 });
 
 export default {
-	input: 'src/index.js',
+	input: 'tests/**/*-test.js',
 	output: {
-		file: {
-			es: pkg.module,
-			cjs: pkg.main,
-		}[env],
+		file: 'build/bundle-tests.js',
 		format: env,
 		globals: {},
 		exports: 'named' /** Disable warning for default imports */,
 		sourcemap: true,
 	},
-	external: ['universal-router', 'universal-router/generateUrls'],
+	external: ['universal-router', 'universal-router/generateUrls', 'chai'],
 	plugins: [
+		multi(),
 		babel({
 			plugins: [],
 		}),
 		commonjs({
 			include: 'node_modules/**',
 		}),
-		filesize(),
 	],
 };
