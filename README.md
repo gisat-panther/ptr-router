@@ -121,3 +121,65 @@ const router = ptrRouter.create({routes});
 const helloUrl = router.pathFor('hello', {name: 'John'}; // => /hello/John
 router.nav(helloUrl); // opens page `/hello/John` that shows alert `Hello John!`
 ```
+
+## Demo with redux
+
+```js
+import * as ptrRouter from '@gisatcz/ptr-router';
+import {createStore, combineReducers} from 'redux';
+
+const ROUTER_PATH = 'router';
+
+const store = createStore(
+    combineReducers({[ROUTER_PATH]: ptrRouter.reducer}),
+    {}
+);
+
+// page selector used by application with router path in state already filled in
+const pageSelector = state => ptrRouter.pageSelector(state, ROUTER_PATH);
+
+const routes = {
+    '': 'homepage',
+    '/hello/:name': {
+        name: 'hello',
+        handler: request => {
+            // show alert when route is matched
+            alert(`Hello ${request.match.pathParams.name}!`);
+        }
+    }
+};
+
+/**
+ * Converts request taken from router into application specific representation
+ * of page in redux store.
+ */
+function requestToPage(request) {
+	if (request.match == null) {
+		return null;
+	}
+
+	return {
+		name: request.match.data.name,
+		params: {
+			path: request.match.pathParams,
+			queryString: request.queryString ?? '',
+		},
+	};
+}
+
+function onChange(request) {
+        // store current page with params to the store
+        const page = requestToPage(request);
+        store.dispatch(ptrRouter.changePage(page.name, page.params));
+
+        // default onChange - calls `handler` if defined for matched route
+        const handler = request.match.data.handler;
+        if (handler != null) {
+            handler(request);
+        }
+}
+
+const router = ptrRouter.create({routes, onChange});
+const helloUrl = router.pathFor('hello', {name: 'John'}; // => /hello/John
+router.nav(helloUrl); // opens page `/hello/John` that shows alert `Hello John!`
+```
