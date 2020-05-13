@@ -1,5 +1,7 @@
 import {assert} from 'chai';
 import * as router from '../src/router';
+import * as reduxRouter from '../src/redux-router';
+import {createStore, combineReducers} from 'redux';
 
 function jsdom(html, options) {
 	return require('jsdom-global')(html, options);
@@ -346,6 +348,52 @@ describe('router', function () {
 							},
 						},
 					},
+					currentUrl: '/hello/John',
+				});
+			});
+		});
+
+		describe('default onChange with redux', function () {
+			let r;
+
+			afterEach(function () {
+				if (r) {
+					r.destroy();
+				}
+			});
+
+			it('should call handler and store current page into redux store', function (done) {
+				const ROUTER_PATH = 'router';
+				const store = createStore(
+					combineReducers({
+						[ROUTER_PATH]: reduxRouter.reducer,
+					}),
+					{}
+				);
+
+				r = router.create({
+					routes: {
+						'': 'homepage',
+						'/hello/:name': {
+							name: 'hello',
+							handler: (request) => {
+								assert.deepStrictEqual(
+									reduxRouter.pageSelector(
+										store.getState(),
+										ROUTER_PATH
+									),
+									{
+										name: 'hello',
+										params: {
+											path: {name: 'John'},
+										},
+									}
+								);
+								done();
+							},
+						},
+					},
+					store,
 					currentUrl: '/hello/John',
 				});
 			});

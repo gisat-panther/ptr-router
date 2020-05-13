@@ -8,11 +8,11 @@
 
 ```js
 const router = create({
-	routes,
-	onChange,
-	notFoundHandler,
-	currentUrl,
-	navHandler,
+    routes,
+    onChange,
+    notFoundHandler,
+    currentUrl,
+    navHandler,
 });
 ```
 
@@ -117,9 +117,45 @@ const routes = {
     }
 };
 
-const router = ptrRouter.create({routes});
-const helloUrl = router.pathFor('hello', {name: 'John'}; // => /hello/John
-router.nav(helloUrl); // opens page `/hello/John` that shows alert `Hello John!`
+function notFoundHandler(request) {
+    console.error(`No route matched url ${location.href}`);
+}
+
+function init({navHandler, currentUrl}) {
+    const router = ptrRouter.create({routes, notFoundHandler, navHandler, currentUrl});
+    const helloUrl = router.pathFor('hello', {name: 'John'}; // => /hello/John
+    router.nav(helloUrl); // opens page `/hello/John` that shows alert `Hello John!`
+    router.nav('/some-random-url'); // `notFoundHandler` logs error into the console
+}
+```
+
+### Initialization in browser
+
+```js
+init();
+```
+
+### Initialization on server
+
+```js
+function handler(req, res) {
+    let requiredUrl = req.url; // what url we will want to render?
+
+    // replaces navigation handlers in router by changing the local `requiredUrl`
+    const navHandler = (url) => {
+        requiredUrl = url;
+    };
+
+    init({currentUrl: req.url, navHandler});
+
+    if (requiredUrl != req.url) {
+        // if url changed during initialization above, redirect to the required url
+        res.redirect(301, requiredUrl);
+        return;
+    }
+
+    // ...
+}
 ```
 
 ## Demo with redux
@@ -149,37 +185,8 @@ const routes = {
     }
 };
 
-/**
- * Converts request taken from router into application specific representation
- * of page in redux store.
- */
-function requestToPage(request) {
-	if (request.match == null) {
-		return null;
-	}
-
-	return {
-		name: request.match.data.name,
-		params: {
-			path: request.match.pathParams,
-			queryString: request.queryString ?? '',
-		},
-	};
-}
-
-function onChange(request) {
-        // store current page with params to the store
-        const page = requestToPage(request);
-        store.dispatch(ptrRouter.changePage(page.name, page.params));
-
-        // default onChange - calls `handler` if defined for matched route
-        const handler = request.match.data.handler;
-        if (handler != null) {
-            handler(request);
-        }
-}
-
-const router = ptrRouter.create({routes, onChange});
+const router = ptrRouter.create({routes, onChange, store});
 const helloUrl = router.pathFor('hello', {name: 'John'}; // => /hello/John
 router.nav(helloUrl); // opens page `/hello/John` that shows alert `Hello John!`
+console.log(pageSelector(tore.getState())); // logs: {name: 'hello', params: {path: {name: 'John'}}}
 ```

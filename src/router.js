@@ -1,5 +1,8 @@
 import UniversalRouter from 'universal-router';
 import generateUrls from 'universal-router/generateUrls';
+import {changePage} from './redux-router';
+
+const STORE_KEY = Symbol('store');
 
 function normalizeData(data) {
 	if (typeof data === 'string') {
@@ -20,12 +23,32 @@ function compareUrlDepth(urlA, urlB) {
 /**
  * Enriches request with some data. Format of data is inspired by ring spec: https://github.com/ring-clojure/ring/blob/master/SPEC
  */
-function enrichRequest(request, context) {
+function enrichRequestWithQueryString(request, context) {
 	if (context.queryString != null && context.queryString !== '') {
 		return Object.assign({}, request, {queryString: context.queryString});
 	}
 
 	return request;
+}
+
+function enrichRequestWithStore(store) {
+	if (store == null) {
+		return;
+	}
+
+	return function (request, context) {
+		return Object.assign({}, request, {[STORE_KEY]: store});
+	};
+}
+
+function createRequestEnhancer(...enhancers) {
+	const enhs = enhancers.filter((enh) => enh != null);
+
+	return function (request, context) {
+		return enhs.reduce(function (req, enhancer) {
+			return enhancer(req, context);
+		}, request);
+	};
 }
 
 function fromObjectRoutes(objRoutes) {
@@ -38,14 +61,12 @@ function fromObjectRoutes(objRoutes) {
 			path,
 			name: data.name,
 			action(context) {
-				const request = {
+				return {
 					match: {
 						data: data,
 						pathParams: context.params ?? {},
 					},
 				};
-
-				return enrichRequest(request, context);
 			},
 		};
 	});
@@ -84,6 +105,29 @@ function defaultOnChange(request) {
 	}
 }
 
+function requestToPage(request) {
+	if (request.match == null) {
+		return null;
+	}
+
+	return {
+		name: request.match.data.name,
+		params: Object.fromEntries(
+			Object.entries({
+				path: request.match.pathParams,
+				queryString: request.queryString,
+			}).filter(([k, v]) => v != null)
+		),
+	};
+}
+
+function defaultOnChangeWithRedux(request) {
+	const page = requestToPage(request);
+	request[STORE_KEY].dispatch(changePage(page?.name, page?.params));
+
+	defaultOnChange(request);
+}
+
 /**
  * @param {Object} options
  * @param {Object} options.routes Keys are paths in format `/path/:param`, values are route data (object with key 'name' or string)
@@ -91,6 +135,7 @@ function defaultOnChange(request) {
  * @param {Function=} options.notFoundHandler Function accepting request called when no route is matched
  * @param {Function=} options.navHandler Function called instead of `nav` and `redirect` (useful for SSR)
  * @param {string=} options.currentUrl Useful when doing SSR
+ * @param {store=} options.store Redux store to which current page will be stored
  *
  * Request is map with optional keys:
  * - `match`
@@ -99,17 +144,27 @@ function defaultOnChange(request) {
  */
 export function create({
 	routes,
-	onChange = defaultOnChange,
+	onChange,
 	notFoundHandler,
 	currentUrl,
 	navHandler,
+	store,
 }) {
+	if (onChange == null) {
+		onChange = store == null ? defaultOnChange : defaultOnChangeWithRedux;
+	}
+
+	const enrichRequest = createRequestEnhancer(
+		enrichRequestWithQueryString,
+		enrichRequestWithStore(store)
+	);
+
 	const universalRoutes = fromObjectRoutes(routes);
 	const options = {
 		resolveRoute(context, params) {
 			if (typeof context.route.action === 'function') {
 				const request = context.route.action(context, params);
-				onChange(request);
+				onChange(enrichRequest(request, context));
 
 				return true;
 			}
