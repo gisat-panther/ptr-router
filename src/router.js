@@ -130,7 +130,8 @@ function defaultOnChangeWithRedux(request) {
 
 /**
  * @param {Object} options
- * @param {Object} options.routes Keys are paths in format `/path/:param`, values are route data (object with key 'name' or string)
+ * @param {Object} options.routes Keys are paths in format `/path/:param`, values are route data
+ *     (object with key 'name' or string)
  * @param {Function=} options.onChange Function accepting request called when route is matched
  * @param {Function=} options.notFoundHandler Function accepting request called when no route is matched
  * @param {Function=} options.navHandler Function called instead of `nav` and `redirect` (useful for SSR)

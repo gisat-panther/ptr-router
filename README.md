@@ -7,75 +7,51 @@
 ### Router
 
 ```js
-const router = create({
-    routes,
-    onChange,
-    notFoundHandler,
-    currentUrl,
-    navHandler,
+/**
+ * @param {Object} options
+ * @param {Object} options.routes Keys are paths in format `/path/:param`, values are route data
+ *     (object with key 'name' or string)
+ * @param {Function=} options.onChange Function accepting request called when route is matched.
+ *     Default `onChange` function calls `handler(request)` where `handler` is taken from route data.
+ * @param {Function=} options.notFoundHandler Function accepting request called when no route is matched
+ * @param {Function=} options.navHandler Function called instead of `nav` and `redirect` (useful for SSR)
+ * @param {string=} options.currentUrl Useful when doing SSR
+ * @param {store=} options.store Redux store to which current page will be stored
+ *
+ * Request is map with optional keys:
+ * - `match`
+ *   - matched route. It is object with keys `data` (route data object), `pathParams`
+ * - `queryString`
+ */
+create({
+	routes,
+	onChange,
+	notFoundHandler,
+	currentUrl,
+	navHandler,
+	store,
 });
 ```
 
-#### onChange
+### Methods of router created using `create` above
 
-Function called when url is changed with signature> `request => void`.
-
-`request` contains:
-- `match.data`
-    - matched route data (object with `name` property and additional arbitrary data)
-- `queryString`
-    - query part of the url
-
-There is default `onChange` function that calls `handler(request)` where `handler` is taken from route data.
-
-#### notFoundHandler
-
-Function called when url is changed but there is no matching url. It is same as `app` except it doesn't contain `match` as nothing was matched.
-
-#### routes
-
-Mapping of url to route data received in `onChange` in `request.match.data`. Key is string with possible placeholders starting with `:`, value is either string or object containing `name` of type string with arbitrary additional data.
-
-Example:
-```js
-const routes = {
-    '': 'homepage', // route data is string
-    '/hello/:name': { // route data is object with `name` and `handler` properties.
-        name: 'hello',
-        handler: request => {
-            alert(`Hello ${request.match.pathParams.name}!`);
-        }
-    }
-};
-```
-
-#### currentUrl
-
-Currently opened url (useful for SSR).
-
-#### navHandler
-
-Replaces routing behaviour on `nav` and `redirect`. Useful with SSR where redirect can be sent to browser when apps tries to open different url.
-
-#### router
-
-##### nav(url)
+#### nav(url)
 
 Opens `url`, which triggers `onChange` or `notFoundHandler`.
 
-##### redirect(url)
+#### redirect(url)
 
 Same as `nav(url)`, except previous `url` in history is replaced with the one provided.
 
-##### refresh()
+#### refresh()
 
 Triggers `onChange` or `notFoundHandler`.
 
-##### pathFor(page, params)
+#### pathFor(page, params)
 
 Generates url based on route `name` (`page`) and path `params`.
 
-##### destroy()
+#### destroy()
 
 Destroys router. Useful in tests to remove listeners from DOM.
 
