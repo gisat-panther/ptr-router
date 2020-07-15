@@ -1,3 +1,15 @@
+# v0.0.3 (Wed Jul 15 2020)
+
+#### 🐾 Patch
+
+- Update test trigger [#6](https://github.com/gisat-panther/ptr-router/pull/6) ([@nenadalm](https://github.com/nenadalm))
+
+#### Authors: 1
+
+- Miloslav Nenadál ([@nenadalm](https://github.com/nenadalm))
+
+---
+
 # v0.0.2 (Wed Jul 15 2020)
 
 #### 🐾 Patch
