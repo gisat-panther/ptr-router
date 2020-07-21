@@ -1,3 +1,15 @@
+# v0.0.4 (Tue Jul 21 2020)
+
+#### 🐾 Patch
+
+- Bump lodash from 4.17.15 to 4.17.19 [#7](https://github.com/gisat-panther/ptr-router/pull/7) ([@dependabot[bot]](https://github.com/dependabot[bot]))
+
+#### Authors: 1
+
+- [@dependabot[bot]](https://github.com/dependabot[bot])
+
+---
+
 # v0.0.3 (Wed Jul 15 2020)
 
 #### 🐾 Patch
