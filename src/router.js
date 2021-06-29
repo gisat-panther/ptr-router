@@ -62,6 +62,7 @@ function fromObjectRoutes(objRoutes) {
 			name: data.name,
 			action(context) {
 				return {
+					context,
 					match: {
 						data: data,
 						pathParams: context.params ?? {},
