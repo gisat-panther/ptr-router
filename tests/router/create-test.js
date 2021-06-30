@@ -1,6 +1,6 @@
 import {assert} from 'chai';
-import * as router from '../src/router';
-import * as reduxRouter from '../src/redux-router';
+import * as router from '../../src/router';
+import * as reduxRouter from '../../src/redux-router';
 import {createStore, combineReducers} from 'redux';
 
 function jsdom(html, options) {
@@ -27,6 +27,83 @@ describe('router', function () {
 				assert.strictEqual(
 					r.pathFor('hello', {name: 'John'}),
 					'/hello/John'
+				);
+			});
+
+			it('not-found', function () {
+				assert.throws(() => {
+					r.pathFor('/not-found');
+				});
+			});
+		});
+
+		describe('path with children', function () {
+			const r = router.create({
+				routes: {'/': 'homepage', '/hello/:name': 'hello', '/fruits': {
+					name: 'fruits',
+					children: {
+						'': {
+							name: 'fruits:homepage'
+						  },
+						'/banana': {
+							name: 'fruits:banana'
+						  },
+						'/apple': {
+							name: 'fruits:apple',
+							children: {
+								'/red': {
+									name: 'fruits:apple:red'
+								  },	
+								'/green': {
+									name: 'fruits:apple:green'
+								  },	
+							}
+						  },
+					}
+				}},
+				onChange: function (request) {},
+			});
+
+			after(function () {
+				r.destroy();
+			});
+
+			it('homepage', function () {
+				assert.strictEqual(r.pathFor('homepage'), '/');
+			});
+
+			it('hello', function () {
+				assert.strictEqual(
+					r.pathFor('hello', {name: 'John'}),
+					'/hello/John'
+				);
+			});
+
+			it('fruits:homepage', function () {
+				assert.strictEqual(
+					r.pathFor('fruits:homepage', {}),
+					'/fruits'
+				);
+			});
+
+			it('fruits:banana', function () {
+				assert.strictEqual(
+					r.pathFor('fruits:banana', {}),
+					'/fruits/banana'
+				);
+			});
+
+			it('fruits:apple', function () {
+				assert.strictEqual(
+					r.pathFor('fruits:apple', {}),
+					'/fruits/apple'
+				);
+			});
+
+			it('fruits:apple:red', function () {
+				assert.strictEqual(
+					r.pathFor('fruits:apple:red', {}),
+					'/fruits/apple/red'
 				);
 			});
 
@@ -80,13 +157,22 @@ describe('router', function () {
 				{
 					name: 'not found',
 					currentUrl: '/not-found',
-					expectedRequest: {},
+					expectedRequest: {
+						match: {
+							data: {name:'homepage'},
+							pathParams: {},
+						},
+					},
 				},
 				{
 					name: 'not found with query string',
 					currentUrl: '/not-found?a=b&c=d',
 					expectedRequest: {
 						queryString: 'a=b&c=d',
+						match: {
+							data: {name:'homepage'},
+							pathParams: {},
+						},
 					},
 				},
 			];
@@ -111,6 +197,9 @@ describe('router', function () {
 						},
 						currentUrl: test.currentUrl,
 						onChange: function (request) {
+							//remove context property
+							delete request.context;
+
 							assert.deepStrictEqual(
 								request,
 								test.expectedRequest
@@ -118,6 +207,9 @@ describe('router', function () {
 							done();
 						},
 						notFoundHandler: function (request) {
+							//remove context property
+							delete request.context;
+
 							assert.deepStrictEqual(
 								request,
 								test.expectedRequest
@@ -154,6 +246,10 @@ describe('router', function () {
 							return;
 						}
 
+						//remove context property
+						requests.forEach(r => {
+							delete r.context;
+						})
 						assert.deepStrictEqual(requests, [
 							{
 								match: {
@@ -206,6 +302,11 @@ describe('router', function () {
 						if (requests.length !== 2) {
 							return;
 						}
+
+						//remove context property
+						requests.forEach(r => {
+							delete r.context;
+						})
 
 						assert.deepStrictEqual(requests, [
 							{
@@ -260,6 +361,11 @@ describe('router', function () {
 							return;
 						}
 
+						//remove context property
+						requests.forEach(r => {
+							delete r.context;
+						})
+						
 						assert.deepStrictEqual(requests, [
 							{
 								match: {

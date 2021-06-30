@@ -21,6 +21,8 @@
  * Request is map with optional keys:
  * - `match`
  *   - matched route. It is object with keys `data` (route data object), `pathParams`
+ * - `context`
+ *   - Current UniversalRouter context with actual url, parameters, routes...
  * - `queryString`
  */
 create({
@@ -89,6 +91,26 @@ const routes = {
         handler: request => {
             // show alert when route is matched
             alert(`Hello ${request.match.pathParams.name}!`);
+        }
+    },
+    '/fruit': {
+        name: 'fruit',
+        handler: request => {
+            if(request.context.pathname === '/fruit') {
+                alert(`Hello I'm on fruite url!`);
+            } else {
+                // pass to the children
+                request.context.next();
+            }
+        },
+        children: {
+            'apple': {
+                name: 'fruit:apple',
+                handler: request => {
+                    // show alert when route is matched
+                    alert(`Hello ${request.match.pathParams.name} ${request.context.pathname}!`);
+                }
+            }
         }
     }
 };
