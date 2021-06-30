@@ -60,6 +60,7 @@ function fromObjectRoutes(objRoutes) {
 		return {
 			path,
 			name: data.name,
+			children: data.children ? fromObjectRoutes(data.children) : [],
 			action(context) {
 				return {
 					context,
