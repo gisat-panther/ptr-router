@@ -1,3 +1,15 @@
+# v0.1.0 (Thu Nov 04 2021)
+
+#### 🚀 Enhancement
+
+- Feature/extend [#15](https://github.com/gisat-panther/ptr-router/pull/15) ([@vdubr](https://github.com/vdubr))
+
+#### Authors: 1
+
+- Vojtěch Dubrovský ([@vdubr](https://github.com/vdubr))
+
+---
+
 # v0.0.4 (Tue Jul 21 2020)
 
 #### 🐾 Patch
