@@ -139,6 +139,7 @@ function defaultOnChangeWithRedux(request) {
  * @param {Function=} options.navHandler Function called instead of `nav` and `redirect` (useful for SSR)
  * @param {string=} options.currentUrl Useful when doing SSR
  * @param {store=} options.store Redux store to which current page will be stored
+ * @param {Object=} options.generateUrlsOptions Options with params for generateUrls https://github.com/kriasoft/universal-router/blob/main/docs/api.md#url-generation
  *
  * Request is map with optional keys:
  * - `match`
@@ -152,6 +153,7 @@ export function create({
 	currentUrl,
 	navHandler,
 	store,
+	generateUrlsOptions
 }) {
 	if (onChange == null) {
 		onChange = store == null ? defaultOnChange : defaultOnChangeWithRedux;
@@ -186,7 +188,7 @@ export function create({
 	};
 
 	const baseRouter = new UniversalRouter(universalRoutes, options);
-	const url = generateUrls(baseRouter);
+	const url = generateUrls(baseRouter, generateUrlsOptions);
 	baseRouter.resolve(parseUrl(currentUrl ?? currentLoc()));
 
 	const urlChanged = () => {
