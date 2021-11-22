@@ -17,6 +17,7 @@
  * @param {Function=} options.navHandler Function called instead of `nav` and `redirect` (useful for SSR)
  * @param {string=} options.currentUrl Useful when doing SSR
  * @param {store=} options.store Redux store to which current page will be stored
+ * @param {Object=} options.generateUrlsOptions Options with params for generateUrls https://github.com/kriasoft/universal-router/blob/main/docs/api.md#url-generation
  *
  * Request is map with optional keys:
  * - `match`
@@ -32,6 +33,7 @@ create({
 	currentUrl,
 	navHandler,
 	store,
+    generateUrlsOptions,
 });
 ```
 
@@ -120,8 +122,11 @@ function notFoundHandler(request) {
 }
 
 function init({navHandler, currentUrl}) {
-    const router = ptrRouter.create({routes, notFoundHandler, navHandler, currentUrl});
-    const helloUrl = router.pathFor('hello', {name: 'John'}; // => /hello/John
+    const generateUrlsOptions = {
+        stringifyQueryParams: (params) => new URLSearchParams(params).toString() //parse unknown params to the querystring
+    }
+    const router = ptrRouter.create({routes, notFoundHandler, navHandler, currentUrl, generateUrlsOptions});
+    const helloUrl = router.pathFor('hello', {name: 'John', address: 'prague'}; // => /hello/John?address=prague
     router.nav(helloUrl); // opens page `/hello/John` that shows alert `Hello John!`
     router.nav('/some-random-url'); // `notFoundHandler` logs error into the console
 }
