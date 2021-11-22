@@ -1,3 +1,15 @@
+# v0.1.1 (Mon Nov 22 2021)
+
+#### 🐾 Patch
+
+- Feature/generate url params [#18](https://github.com/gisat-panther/ptr-router/pull/18) ([@vdubr](https://github.com/vdubr))
+
+#### Authors: 1
+
+- Vojtěch Dubrovský ([@vdubr](https://github.com/vdubr))
+
+---
+
 # v0.1.0 (Thu Nov 04 2021)
 
 #### 🚀 Enhancement
