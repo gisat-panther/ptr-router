@@ -36,14 +36,13 @@ function enrichRequestWithStore(store) {
 		return;
 	}
 
-	return function (request, context) {
+	return function (request) {
 		return Object.assign({}, request, {[STORE_KEY]: store});
 	};
 }
 
 function createRequestEnhancer(...enhancers) {
-	const enhs = enhancers.filter((enh) => enh != null);
-
+	const enhs = enhancers.filter(enh => enh != null);
 	return function (request, context) {
 		return enhs.reduce(function (req, enhancer) {
 			return enhancer(req, context);
@@ -54,7 +53,7 @@ function createRequestEnhancer(...enhancers) {
 function fromObjectRoutes(objRoutes) {
 	const orderedPaths = Object.keys(objRoutes).sort(compareUrlDepth);
 
-	return orderedPaths.map((path) => {
+	return orderedPaths.map(path => {
 		const data = normalizeData(objRoutes[path]);
 
 		return {
@@ -118,14 +117,21 @@ function requestToPage(request) {
 			Object.entries({
 				path: request.match.pathParams,
 				queryString: request.queryString,
-			}).filter(([k, v]) => v != null)
+			}).filter(([, v]) => v != null)
 		),
 	};
 }
 
-function defaultOnChangeWithRedux(request) {
+/**
+ *
+ * @param {Object} request
+ * @param {bool} dispatchChange Whether dispatch change to router store
+ */
+function defaultOnChangeWithRedux(request, dispatchChange) {
 	const page = requestToPage(request);
-	request[STORE_KEY].dispatch(changePage(page?.name, page?.params));
+	if (dispatchChange === true) {
+		request[STORE_KEY].dispatch(changePage(page?.name, page?.params));
+	}
 
 	defaultOnChange(request);
 }
@@ -153,7 +159,7 @@ export function create({
 	currentUrl,
 	navHandler,
 	store,
-	generateUrlsOptions
+	generateUrlsOptions,
 }) {
 	if (onChange == null) {
 		onChange = store == null ? defaultOnChange : defaultOnChangeWithRedux;
@@ -169,7 +175,19 @@ export function create({
 		resolveRoute(context, params) {
 			if (typeof context.route.action === 'function') {
 				const request = context.route.action(context, params);
-				onChange(enrichRequest(request, context));
+
+				//
+				// We want to dispatch change route on every last route.
+				// If dispatchChange would be true, then change is dispatched on each route child.
+				// context.path === '' is case when is changing query string otherwise we check if
+				//  context.baseUrl + context.path is same like context.pathname => if so, then
+				// the we are on last child
+				//
+				const dispatchChange =
+					context.path !== ''
+						? `${context.baseUrl}${context.path}` === context.pathname
+						: true;
+				onChange(enrichRequest(request, context), dispatchChange);
 
 				return true;
 			}
@@ -199,11 +217,11 @@ export function create({
 	}
 
 	const router = {
-		nav: (url) => {
+		nav: url => {
 			history.pushState({}, '', url);
 			urlChanged();
 		},
-		redirect: (url) => {
+		redirect: url => {
 			history.replaceState({}, '', url);
 			urlChanged();
 		},
@@ -225,10 +243,10 @@ export function create({
 		router,
 		navHandler
 			? {
-					nav: (url) => {
+					nav: url => {
 						navHandler(url);
 					},
-					redirect: (url) => {
+					redirect: url => {
 						navHandler(url);
 					},
 			  }
