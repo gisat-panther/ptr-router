@@ -123,9 +123,16 @@ function requestToPage(request) {
 	};
 }
 
-function defaultOnChangeWithRedux(request) {
+/**
+ *
+ * @param {Object} request
+ * @param {bool} dispatchChange Whether dispatch change to router store
+ */
+function defaultOnChangeWithRedux(request, dispatchChange) {
 	const page = requestToPage(request);
-	request[STORE_KEY].dispatch(changePage(page?.name, page?.params));
+	if (dispatchChange === true) {
+		request[STORE_KEY].dispatch(changePage(page?.name, page?.params));
+	}
 
 	defaultOnChange(request);
 }
@@ -153,7 +160,7 @@ export function create({
 	currentUrl,
 	navHandler,
 	store,
-	generateUrlsOptions
+	generateUrlsOptions,
 }) {
 	if (onChange == null) {
 		onChange = store == null ? defaultOnChange : defaultOnChangeWithRedux;
@@ -169,7 +176,21 @@ export function create({
 		resolveRoute(context, params) {
 			if (typeof context.route.action === 'function') {
 				const request = context.route.action(context, params);
-				onChange(enrichRequest(request, context));
+
+				//
+				// We want to dispatch change route on every last route.
+				// If dispatchChange would be true, then change is dispatched on each route child.
+				// context.path === '' is case when is changing query string otherwise we check if
+				//  context.baseUrl + context.path is same like context.pathname => if so, then
+				// the we are on last child
+				//
+				const dispatchChange =
+					context.path !== ''
+						? `${context.baseUrl}${context.path}` ===
+						  context.pathname
+						: true;
+				debugger;
+				onChange(enrichRequest(request, context), dispatchChange);
 
 				return true;
 			}
