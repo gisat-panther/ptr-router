@@ -189,7 +189,6 @@ export function create({
 						? `${context.baseUrl}${context.path}` ===
 						  context.pathname
 						: true;
-				debugger;
 				onChange(enrichRequest(request, context), dispatchChange);
 
 				return true;
