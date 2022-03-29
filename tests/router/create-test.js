@@ -1,4 +1,5 @@
 import {assert} from 'chai';
+import {describe, after, it, afterEach, beforeEach} from 'mocha';
 import * as router from '../../src/router';
 import * as reduxRouter from '../../src/redux-router';
 import {createStore, combineReducers} from 'redux';
@@ -12,7 +13,7 @@ describe('router', function () {
 		describe('pathFor', function () {
 			const r = router.create({
 				routes: {'/': 'homepage', '/hello/:name': 'hello'},
-				onChange: function (request) {},
+				onChange: function () {},
 			});
 
 			after(function () {
@@ -24,10 +25,7 @@ describe('router', function () {
 			});
 
 			it('hello', function () {
-				assert.strictEqual(
-					r.pathFor('hello', {name: 'John'}),
-					'/hello/John'
-				);
+				assert.strictEqual(r.pathFor('hello', {name: 'John'}), '/hello/John');
 			});
 
 			it('not-found', function () {
@@ -39,29 +37,33 @@ describe('router', function () {
 
 		describe('path with children', function () {
 			const r = router.create({
-				routes: {'/': 'homepage', '/hello/:name': 'hello', '/fruits': {
-					name: 'fruits',
-					children: {
-						'': {
-							name: 'fruits:homepage'
-						  },
-						'/banana': {
-							name: 'fruits:banana'
-						  },
-						'/apple': {
-							name: 'fruits:apple',
-							children: {
-								'/red': {
-									name: 'fruits:apple:red'
-								  },	
-								'/green': {
-									name: 'fruits:apple:green'
-								  },	
-							}
-						  },
-					}
-				}},
-				onChange: function (request) {},
+				routes: {
+					'/': 'homepage',
+					'/hello/:name': 'hello',
+					'/fruits': {
+						name: 'fruits',
+						children: {
+							'': {
+								name: 'fruits:homepage',
+							},
+							'/banana': {
+								name: 'fruits:banana',
+							},
+							'/apple': {
+								name: 'fruits:apple',
+								children: {
+									'/red': {
+										name: 'fruits:apple:red',
+									},
+									'/green': {
+										name: 'fruits:apple:green',
+									},
+								},
+							},
+						},
+					},
+				},
+				onChange: function () {},
 			});
 
 			after(function () {
@@ -73,31 +75,19 @@ describe('router', function () {
 			});
 
 			it('hello', function () {
-				assert.strictEqual(
-					r.pathFor('hello', {name: 'John'}),
-					'/hello/John'
-				);
+				assert.strictEqual(r.pathFor('hello', {name: 'John'}), '/hello/John');
 			});
 
 			it('fruits:homepage', function () {
-				assert.strictEqual(
-					r.pathFor('fruits:homepage', {}),
-					'/fruits'
-				);
+				assert.strictEqual(r.pathFor('fruits:homepage', {}), '/fruits');
 			});
 
 			it('fruits:banana', function () {
-				assert.strictEqual(
-					r.pathFor('fruits:banana', {}),
-					'/fruits/banana'
-				);
+				assert.strictEqual(r.pathFor('fruits:banana', {}), '/fruits/banana');
 			});
 
 			it('fruits:apple', function () {
-				assert.strictEqual(
-					r.pathFor('fruits:apple', {}),
-					'/fruits/apple'
-				);
+				assert.strictEqual(r.pathFor('fruits:apple', {}), '/fruits/apple');
 			});
 
 			it('fruits:apple:red', function () {
@@ -159,7 +149,7 @@ describe('router', function () {
 					currentUrl: '/not-found',
 					expectedRequest: {
 						match: {
-							data: {name:'homepage'},
+							data: {name: 'homepage'},
 							pathParams: {},
 						},
 					},
@@ -170,7 +160,7 @@ describe('router', function () {
 					expectedRequest: {
 						queryString: 'a=b&c=d',
 						match: {
-							data: {name:'homepage'},
+							data: {name: 'homepage'},
 							pathParams: {},
 						},
 					},
@@ -200,20 +190,14 @@ describe('router', function () {
 							//remove context property
 							delete request.context;
 
-							assert.deepStrictEqual(
-								request,
-								test.expectedRequest
-							);
+							assert.deepStrictEqual(request, test.expectedRequest);
 							done();
 						},
 						notFoundHandler: function (request) {
 							//remove context property
 							delete request.context;
 
-							assert.deepStrictEqual(
-								request,
-								test.expectedRequest
-							);
+							assert.deepStrictEqual(request, test.expectedRequest);
 							done();
 						},
 					});
@@ -249,7 +233,7 @@ describe('router', function () {
 						//remove context property
 						requests.forEach(r => {
 							delete r.context;
-						})
+						});
 						assert.deepStrictEqual(requests, [
 							{
 								match: {
@@ -306,7 +290,7 @@ describe('router', function () {
 						//remove context property
 						requests.forEach(r => {
 							delete r.context;
-						})
+						});
 
 						assert.deepStrictEqual(requests, [
 							{
@@ -364,8 +348,8 @@ describe('router', function () {
 						//remove context property
 						requests.forEach(r => {
 							delete r.context;
-						})
-						
+						});
+
 						assert.deepStrictEqual(requests, [
 							{
 								match: {
@@ -424,7 +408,7 @@ describe('router', function () {
 					navHandler(url) {
 						urls.push(url);
 					},
-					onChange: function (request) {},
+					onChange: function () {},
 				});
 
 				r.nav('/hello/John');
@@ -449,7 +433,7 @@ describe('router', function () {
 						'': 'homepage',
 						'/hello/:name': {
 							name: 'hello',
-							handler: (request) => {
+							handler: () => {
 								done();
 							},
 						},
@@ -482,12 +466,9 @@ describe('router', function () {
 						'': 'homepage',
 						'/hello/:name': {
 							name: 'hello',
-							handler: (request) => {
+							handler: () => {
 								assert.deepStrictEqual(
-									reduxRouter.pageSelector(
-										store.getState(),
-										ROUTER_PATH
-									),
+									reduxRouter.pageSelector(store.getState(), ROUTER_PATH),
 									{
 										name: 'hello',
 										params: {

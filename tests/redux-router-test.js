@@ -1,4 +1,5 @@
 import {assert} from 'chai';
+import {describe, it} from 'mocha';
 import * as reduxRouter from '../src/redux-router';
 
 describe('redux-router', function () {
@@ -11,23 +12,17 @@ describe('redux-router', function () {
 		});
 
 		it('with params', function () {
-			assert.deepStrictEqual(
-				reduxRouter.changePage('homepage', {some: true}),
-				{
-					type: reduxRouter.CHANGE_PAGE,
-					payload: {name: 'homepage', params: {some: true}},
-				}
-			);
+			assert.deepStrictEqual(reduxRouter.changePage('homepage', {some: true}), {
+				type: reduxRouter.CHANGE_PAGE,
+				payload: {name: 'homepage', params: {some: true}},
+			});
 		});
 	});
 
 	describe('pageSelector', function () {
 		it('should return page', function () {
 			assert.deepStrictEqual(
-				reduxRouter.pageSelector(
-					{router: {name: 'homepage'}},
-					'router'
-				),
+				reduxRouter.pageSelector({router: {name: 'homepage'}}, 'router'),
 				{name: 'homepage'}
 			);
 		});

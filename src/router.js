@@ -36,14 +36,13 @@ function enrichRequestWithStore(store) {
 		return;
 	}
 
-	return function (request, context) {
+	return function (request) {
 		return Object.assign({}, request, {[STORE_KEY]: store});
 	};
 }
 
 function createRequestEnhancer(...enhancers) {
-	const enhs = enhancers.filter((enh) => enh != null);
-
+	const enhs = enhancers.filter(enh => enh != null);
 	return function (request, context) {
 		return enhs.reduce(function (req, enhancer) {
 			return enhancer(req, context);
@@ -54,7 +53,7 @@ function createRequestEnhancer(...enhancers) {
 function fromObjectRoutes(objRoutes) {
 	const orderedPaths = Object.keys(objRoutes).sort(compareUrlDepth);
 
-	return orderedPaths.map((path) => {
+	return orderedPaths.map(path => {
 		const data = normalizeData(objRoutes[path]);
 
 		return {
@@ -118,7 +117,7 @@ function requestToPage(request) {
 			Object.entries({
 				path: request.match.pathParams,
 				queryString: request.queryString,
-			}).filter(([k, v]) => v != null)
+			}).filter(([, v]) => v != null)
 		),
 	};
 }
@@ -186,8 +185,7 @@ export function create({
 				//
 				const dispatchChange =
 					context.path !== ''
-						? `${context.baseUrl}${context.path}` ===
-						  context.pathname
+						? `${context.baseUrl}${context.path}` === context.pathname
 						: true;
 				onChange(enrichRequest(request, context), dispatchChange);
 
@@ -219,11 +217,11 @@ export function create({
 	}
 
 	const router = {
-		nav: (url) => {
+		nav: url => {
 			history.pushState({}, '', url);
 			urlChanged();
 		},
-		redirect: (url) => {
+		redirect: url => {
 			history.replaceState({}, '', url);
 			urlChanged();
 		},
@@ -245,10 +243,10 @@ export function create({
 		router,
 		navHandler
 			? {
-					nav: (url) => {
+					nav: url => {
 						navHandler(url);
 					},
-					redirect: (url) => {
+					redirect: url => {
 						navHandler(url);
 					},
 			  }

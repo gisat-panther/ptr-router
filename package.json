@@ -8,6 +8,12 @@
 		"router"
 	],
 	"homepage": "https://github.com/gisat-panther/ptr-router",
+	"prettier": "@gisatcz/prettier-config",
+	"husky": {
+		"hooks": {
+			"pre-commit": "pretty-quick --staged"
+		}
+	},
 	"main": "dist/index.js",
 	"module": "dist/index.es.js",
 	"files": [
@@ -26,16 +32,23 @@
 		"@babel/cli": "^7.8.4",
 		"@babel/core": "^7.9.6",
 		"@babel/preset-env": "^7.9.6",
+		"@gisatcz/prettier-config": "0.0.3",
 		"@rollup/plugin-commonjs": "^11.0.2",
 		"@rollup/plugin-multi-entry": "^3.0.0",
 		"auto": "^9.43.1",
 		"chai": "^4.2.0",
 		"cross-env": "^7.0.2",
+		"eslint": "^8.12.0",
+		"eslint-config-prettier": "^8.5.0",
+		"eslint-plugin-mocha": "^10.0.3",
+		"eslint-plugin-prettier": "^4.0.0",
+		"husky": "^7.0.4",
 		"jsdom": "^16.2.2",
 		"jsdom-global": "^3.0.2",
 		"mocha": "^7.1.2",
 		"npm-run-all": "^4.1.5",
 		"npm-watch": "^0.6.0",
+		"prettier": "^2.6.1",
 		"redux": "^4.0.5",
 		"rimraf": "^3.0.2",
 		"rollup": "^2.8.0",
@@ -62,6 +75,8 @@
 		"build:lib:es": "npm-run-all build:babel:lib:es",
 		"build:babel:lib:es": "cross-env BABEL_ENV=es babel src -d lib",
 		"test": "cross-env NODE_ENV=cjs rollup -c ./rollup.test.config.js && mocha -- --require source-map-support/register",
-		"test:watch": "npm-watch test"
+		"test:watch": "npm-watch test",
+		"lint": "eslint .",
+		"lintFix": "eslint . --fix"
 	}
 }
