@@ -1,3 +1,15 @@
+# v0.2.0 (Tue Mar 29 2022)
+
+#### 🚀 Enhancement
+
+- Add nvm, controll dispatching router state change [#22](https://github.com/gisat-panther/ptr-router/pull/22) ([@vdubr](https://github.com/vdubr))
+
+#### Authors: 1
+
+- Vojtěch Dubrovský ([@vdubr](https://github.com/vdubr))
+
+---
+
 # v0.1.1 (Mon Nov 22 2021)
 
 #### 🐾 Patch
