@@ -9,11 +9,6 @@
 	],
 	"homepage": "https://github.com/gisat-panther/ptr-router",
 	"prettier": "@gisatcz/prettier-config",
-	"husky": {
-		"hooks": {
-			"pre-commit": "pretty-quick --staged"
-		}
-	},
 	"main": "dist/index.js",
 	"module": "dist/index.es.js",
 	"files": [
@@ -42,7 +37,6 @@
 		"eslint-config-prettier": "^8.5.0",
 		"eslint-plugin-mocha": "^10.0.3",
 		"eslint-plugin-prettier": "^4.0.0",
-		"husky": "^7.0.4",
 		"jsdom": "^16.2.2",
 		"jsdom-global": "^3.0.2",
 		"mocha": "^7.1.2",
