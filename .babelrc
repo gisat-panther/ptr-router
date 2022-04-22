@@ -1,11 +1,44 @@
 {
-	"presets": [
-		[
-			"@babel/preset-env",
-			{
-				"modules": false
-			}
-		]
-	],
-	"plugins": []
+	"env": {
+		"production": {
+			"presets": [
+				[
+					"@babel/preset-env",
+					{
+						"modules": false
+					}
+				]
+			],
+			"plugins": [["@babel/plugin-transform-runtime"]]
+		},
+		"development": {
+			"presets": [
+				[
+					"@babel/preset-env",
+					{
+						"modules": false
+					}
+				]
+			],
+			"plugins": [["@babel/plugin-transform-runtime"]]
+		},
+		"test": {
+			"presets": [
+				[
+					"@babel/preset-env",
+					{
+						"modules": "auto"
+					}
+				]
+			],
+			"plugins": [
+				[
+					"@babel/plugin-transform-runtime",
+					{
+						"useESModules": false
+					}
+				]
+			]
+		}
+	}
 }

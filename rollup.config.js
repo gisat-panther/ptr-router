@@ -1,4 +1,4 @@
-import babel from 'rollup-plugin-babel';
+import babel from '@rollup/plugin-babel';
 import commonjs from '@rollup/plugin-commonjs';
 import filesize from 'rollup-plugin-filesize';
 
@@ -20,7 +20,7 @@ export default {
 	input: 'src/index.js',
 	output: {
 		file: {
-			es: pkg.module,
+			es: 'dist/index.es.js',
 			cjs: pkg.main,
 		}[env],
 		format: env,
@@ -28,10 +28,15 @@ export default {
 		exports: 'named' /** Disable warning for default imports */,
 		sourcemap: true,
 	},
-	external: ['universal-router', 'universal-router/generateUrls'],
+	external: [
+		'universal-router',
+		'universal-router/generateUrls',
+		/@babel\/runtime/,
+	],
 	plugins: [
 		babel({
 			plugins: [],
+			babelHelpers: 'runtime',
 		}),
 		commonjs({
 			include: 'node_modules/**',

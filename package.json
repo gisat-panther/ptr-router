@@ -9,8 +9,9 @@
 	],
 	"homepage": "https://github.com/gisat-panther/ptr-router",
 	"prettier": "@gisatcz/prettier-config",
+	"sideEffects": false,
 	"main": "dist/index.js",
-	"module": "dist/index.es.js",
+	"module": "lib/index.js",
 	"files": [
 		"dist",
 		"lib"
@@ -26,11 +27,13 @@
 	"devDependencies": {
 		"@babel/cli": "^7.8.4",
 		"@babel/core": "^7.9.6",
+		"@babel/plugin-transform-runtime": "^7.17.0",
 		"@babel/preset-env": "^7.9.6",
+		"@babel/register": "^7.17.7",
 		"@gisatcz/prettier-config": "0.0.3",
-		"@rollup/plugin-commonjs": "^11.0.2",
-		"@rollup/plugin-multi-entry": "^3.0.0",
-		"auto": "^9.43.1",
+		"@rollup/plugin-babel": "^5.3.1",
+		"@rollup/plugin-commonjs": "^21.1.0",
+		"auto": "^10.36.5",
 		"chai": "^4.2.0",
 		"cross-env": "^7.0.2",
 		"eslint": "^8.12.0",
@@ -41,35 +44,25 @@
 		"jsdom-global": "^3.0.2",
 		"mocha": "^7.1.2",
 		"npm-run-all": "^4.1.5",
-		"npm-watch": "^0.6.0",
 		"prettier": "^2.6.1",
 		"redux": "^4.0.5",
 		"rimraf": "^3.0.2",
 		"rollup": "^2.8.0",
-		"rollup-plugin-babel": "^4.4.0",
-		"rollup-plugin-filesize": "^6.2.1"
-	},
-	"watch": {
-		"test": {
-			"patterns": [
-				"src",
-				"tests"
-			]
-		}
+		"rollup-plugin-filesize": "^9.1.2"
 	},
 	"scripts": {
 		"clean": "rimraf dist",
-		"start": "run-s clean && run-p start:es start:cjs start:lib:es",
-		"start:lib:es": "cross-env BABEL_ENV=es babel --watch src -d lib --verbose",
-		"start:cjs": "cross-env NODE_ENV=cjs rollup -c -w",
-		"start:es": "cross-env NODE_ENV=es rollup -c -w",
-		"build": "run-s clean && run-p build:es build:cjs build:lib:es",
-		"build:es": "cross-env NODE_ENV=es rollup -c",
-		"build:cjs": "cross-env NODE_ENV=cjs rollup -c",
-		"build:lib:es": "npm-run-all build:babel:lib:es",
-		"build:babel:lib:es": "cross-env BABEL_ENV=es babel src -d lib",
-		"test": "cross-env NODE_ENV=cjs rollup -c ./rollup.test.config.js && mocha -- --require source-map-support/register",
-		"test:watch": "npm-watch test",
+		"start": "cross-env BABEL_ENV=development run-s clean && run-p start:es start:cjs start:lib:es && copy:stylesheets copy:assets",
+		"start:lib:es": "cross-env BABEL_ENV=development babel --watch src -d lib --verbose",
+		"start:cjs": "cross-env BABEL_ENV=development NODE_ENV=cjs rollup -c -w",
+		"start:es": "cross-env BABEL_ENV=development NODE_ENV=es rollup -c -w",
+		"build": "cross-env BABEL_ENV=production run-s clean && run-p build:es build:cjs build:lib:es",
+		"build:es": "cross-env BABEL_ENV=production NODE_ENV=es rollup -c",
+		"build:cjs": "cross-env BABEL_ENV=production NODE_ENV=cjs rollup -c",
+		"build:lib:es": "cross-env BABEL_ENV=production npm-run-all build:babel:lib:es",
+		"build:babel:lib:es": "cross-env BABEL_ENV=production babel src -d lib",
+		"test": "NODE_ENV=test mocha",
+		"test:watch": "NODE_ENV=test mocha --watch",
 		"lint": "eslint .",
 		"lintFix": "eslint . --fix"
 	}
