@@ -1,3 +1,14 @@
+# v0.3.0 (Fri Jun 24 2022)
+
+#### 🚀 Enhancement
+
+
+#### Authors: 1
+
+- Vojtěch Dubrovský ([@vdubr](https://github.com/vdubr))
+
+---
+
 # v0.2.0 (Tue Mar 29 2022)
 
 #### 🚀 Enhancement
